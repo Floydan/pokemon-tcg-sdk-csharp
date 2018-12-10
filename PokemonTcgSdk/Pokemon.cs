@@ -5,8 +5,11 @@ using System.Collections.Generic;
 namespace PokemonTcgSdk
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class Pokemon
+    public class Pokemon : IBaseQueryModel
     {
+        [JsonProperty("pagingInfo")]
+        public PagingInfo PagingInfo { get; set; }
+
         [JsonProperty("cards")]
         public List<PokemonCard> Cards { get; set; }
 

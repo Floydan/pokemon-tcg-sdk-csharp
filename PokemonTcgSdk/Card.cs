@@ -29,13 +29,13 @@ namespace PokemonTcgSdk
             try
             {
                 var pokemon = QueryBuilder.GetPokemonCards(query);
-                return pokemon ?? new Pokemon {Errors = new List<string> {"Not Found"}};
+                return pokemon ?? new Pokemon { Errors = new List<string> { "Not Found" } };
             }
             catch (Exception ex)
             {
                 return new Pokemon
                 {
-                    Errors = new List<string> {ex.Message}
+                    Errors = new List<string> { ex.Message }
                 };
             }
         }
@@ -56,7 +56,7 @@ namespace PokemonTcgSdk
         /// </summary>
         /// <param name="query"></param>
         /// <returns></returns>
-        public static List<PokemonCard> All(Dictionary<string, string> query = null)
+        public static Pokemon All(Dictionary<string, string> query = null)
         {
             using (var client = QueryBuilderHelper.SetupClient())
             {
@@ -78,6 +78,8 @@ namespace PokemonTcgSdk
                     };
                 }
 
+                PagingInfo pagingInfo = null;
+
                 var totalCount = int.Parse(query[CardQueryTypes.PageSize]);
                 int amount;
                 for (var i = 0; i < totalCount; i += amount)
@@ -88,6 +90,7 @@ namespace PokemonTcgSdk
                     if (stringTask.IsSuccessStatusCode)
                     {
                         var info = HttpResponseToPagingInfo.MapFrom(stringTask.Headers);
+                        if (pagingInfo == null) pagingInfo = info;
                         totalCount = info.TotalCount;
                         amount = info.Count;
 
@@ -106,7 +109,7 @@ namespace PokemonTcgSdk
                 // Create the list returned as a single list instead of a list of lists
                 foreach (var pokemon in items) mergedList.AddRange(pokemon.Cards);
 
-                return mergedList;
+                return new Pokemon { Cards = mergedList, PagingInfo = pagingInfo };
             }
         }
     }

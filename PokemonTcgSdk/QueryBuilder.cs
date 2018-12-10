@@ -2,6 +2,7 @@
 using PokemonTcgSdk.Models;
 using System;
 using System.Collections.Generic;
+using PokemonTcgSdk.Mappers;
 
 namespace PokemonTcgSdk
 {
@@ -17,7 +18,15 @@ namespace PokemonTcgSdk
                 using (var client = QueryBuilderHelper.SetupClient())
                 {
                     var stringTask = QueryBuilderHelper.BuildTaskString(query, ref queryString, client, type);
-                    return QueryBuilderHelper.CreateObject<T>(stringTask);
+                    var result = QueryBuilderHelper.CreateObject<T>(stringTask);
+
+                    if (result is IBaseQueryModel model)
+                    {
+                        model.PagingInfo = HttpResponseToPagingInfo.MapFrom(stringTask.Headers);
+                        return (T)model;
+                    }
+
+                    return result;
                 }
             }
             catch (Exception ex)
@@ -34,7 +43,11 @@ namespace PokemonTcgSdk
                 using (var client = QueryBuilderHelper.SetupClient())
                 {
                     var stringTask = QueryBuilderHelper.BuildTaskString(query, ref queryString, client);
-                    return QueryBuilderHelper.CreateObject<Pokemon>(stringTask);
+                    var result = QueryBuilderHelper.CreateObject<Pokemon>(stringTask);
+
+                    result.PagingInfo = HttpResponseToPagingInfo.MapFrom(stringTask.Headers);
+
+                    return result;
                 }
             }
             catch (Exception ex)

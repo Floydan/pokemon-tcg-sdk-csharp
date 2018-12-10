@@ -28,8 +28,7 @@ namespace PokemonTcgSdk.Mappers
 
         private static object GetValueEntity(string name, HttpHeaders input)
         {
-            IEnumerable<string> values;
-            return input.TryGetValues(name, out values) ? values.FirstOrDefault() : null;
+            return input.TryGetValues(name, out var values) ? values.FirstOrDefault() : null;
         }
 
         private static string GetNameEntity(KeyValuePair<string, PropertyInfo> property)
